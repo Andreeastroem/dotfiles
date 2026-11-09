@@ -17,6 +17,7 @@ LINKS=(
   "waveterm/settings.json:$HOME/.config/waveterm/settings.json"
   "waveterm/backgrounds.json:$HOME/.config/waveterm/backgrounds.json"
   "gh/config.yml:$HOME/.config/gh/config.yml"
+  "mise/config.toml:$HOME/.config/mise/config.toml"
 )
 
 link_all() {
@@ -81,6 +82,10 @@ if ! nvm ls default >/dev/null 2>&1; then
   nvm install node
   nvm alias default node
 fi
+
+# Runtimes from mise/config.toml (Java)
+info "Installing mise tools"
+mise install
 
 # GitHub auth (interactive, only first time)
 if ! gh auth status >/dev/null 2>&1; then

@@ -10,6 +10,8 @@ brew "gh"
 brew "git"
 # Robust (fully ACID) transactional property graph database
 brew "neo4j", restart_service: :changed
+# Polyglot runtime manager (used for Java/JDKs)
+brew "mise"
 # Manage multiple Node.js versions
 brew "nvm"
 # Interpreted, interactive, object-oriented programming language

@@ -3,6 +3,8 @@ set shiftwidth=2
 set expandtab
 
 filetype plugin indent on
+" Java convention is 4-space indents (also used by the jdtls formatter)
+autocmd FileType java setlocal shiftwidth=4 tabstop=4
 syntax on
 
 " --- Plugins (vim-plug) ---------------------------------------------------
