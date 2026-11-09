@@ -6,7 +6,7 @@ My macOS dev setup: Wave terminal, Orca, vim, zsh, Homebrew.
 
 ```sh
 xcode-select --install          # if git isn't available yet
-git clone https://github.com/<you>/dotfiles ~/code/dotfiles
+git clone https://github.com/Andreeastroem/dotfiles.git ~/code/dotfiles
 cd ~/code/dotfiles && ./install.sh
 ```
 
@@ -16,7 +16,8 @@ cd ~/code/dotfiles && ./install.sh
 2. Symlinks the config files below into place (existing files are moved to `~/.dotfiles-backup/<timestamp>/`)
 3. Installs vim-plug and runs `:PlugInstall`
 4. Installs Node via nvm if no default is set
-5. Runs `gh auth login` if needed and sets gh as the git credential helper
+5. Installs the runtimes in `mise/config.toml` (Java) with `mise install`
+6. Runs `gh auth login` if needed and sets gh as the git credential helper
 
 `./install.sh --links` only redoes the symlinks.
 
@@ -28,6 +29,7 @@ cd ~/code/dotfiles && ./install.sh
 | `vim/.vimrc` | `~/.vimrc` |
 | `waveterm/*.json` | `~/.config/waveterm/` |
 | `gh/config.yml` | `~/.config/gh/config.yml` |
+| `mise/config.toml` | `~/.config/mise/config.toml` |
 | `Brewfile` | — (used by `brew bundle`) |
 
 Since these are symlinks, edits made on this machine show up directly in the repo, so just commit them.
