@@ -26,4 +26,3 @@ cask "claude-code"
 cask "stablyai/orca/orca", trusted: true
 # Terminal emulator
 cask "wave"
-uv "open-webui"

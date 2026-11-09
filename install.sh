@@ -9,6 +9,37 @@ BACKUP="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 
 info() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 
+LOG="$(mktemp -t dotfiles-install)"
+
+# run "label" cmd...  — show a spinner while cmd runs, output goes to $LOG.
+# Use only for non-interactive steps; falls back to plain output without a TTY.
+run() {
+  local label="$1"; shift
+  if [ ! -t 1 ]; then
+    info "$label"
+    "$@"
+    return
+  fi
+  : >"$LOG"
+  "$@" >"$LOG" 2>&1 &
+  local pid=$! i=0 frames='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+  printf '\033[?25l'
+  while kill -0 "$pid" 2>/dev/null; do
+    printf '\r\033[1;34m%s\033[0m %s' "${frames:i++%${#frames}:1}" "$label"
+    sleep 0.08
+  done
+  printf '\033[?25h'
+  if wait "$pid"; then
+    printf '\r\033[K\033[1;32m✔\033[0m %s\n' "$label"
+  else
+    printf '\r\033[K\033[1;31m✘\033[0m %s\n' "$label"
+    tail -n 20 "$LOG" | sed 's/^/    /'
+    echo "  full log: $LOG"
+    return 1
+  fi
+}
+trap 'printf "\033[?25h"' EXIT
+
 # repo path -> target path
 LINKS=(
   "zsh/.zshrc:$HOME/.zshrc"
@@ -69,8 +100,8 @@ if [ ! -f "$HOME/.vim/autoload/plug.vim" ]; then
   curl -fsLo "$HOME/.vim/autoload/plug.vim" --create-dirs \
     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 fi
-info "Installing vim plugins"
-vim -es -u "$HOME/.vimrc" -i NONE -c "PlugInstall" -c "qa" || true
+run "Installing vim plugins" \
+  vim -es -u "$HOME/.vimrc" -i NONE -c "PlugInstall" -c "qa" || true
 
 # Node via nvm
 export NVM_DIR="$HOME/.nvm"
@@ -78,14 +109,15 @@ mkdir -p "$NVM_DIR"
 # shellcheck disable=SC1091
 . "$(brew --prefix nvm)/nvm.sh"
 if ! nvm ls default >/dev/null 2>&1; then
-  info "Installing latest Node via nvm"
-  nvm install node
-  nvm alias default node
+  run "Installing latest Node via nvm" nvm install node
+  nvm alias default node >/dev/null
 fi
 
 # Runtimes from mise/config.toml (Java)
-info "Installing mise tools"
-mise install
+run "Installing mise tools" mise install
+
+# Pinned: Homebrew's newest Python (3.15) lacks wheels for open-webui's deps (onnxruntime)
+run "Installing open-webui (Python 3.12)" uv tool install --python 3.12 open-webui
 
 # GitHub auth (interactive, only first time)
 if ! gh auth status >/dev/null 2>&1; then
